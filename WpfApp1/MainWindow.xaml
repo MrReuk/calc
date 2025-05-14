@@ -26,13 +26,9 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <TextBox x:Name="ExpressionDisplay" IsReadOnly="True"
-                 Grid.Row="0" Grid.ColumnSpan="5" Margin="10" Height="30"
-                 FontSize="16" TextAlignment="Right" Text=""/>
+        <TextBox x:Name="ExpressionDisplay" IsReadOnly="True" Grid.Row="0" Grid.ColumnSpan="5" Margin="10" Height="30" FontSize="16" TextAlignment="Right" Text=""/>
 
-        <TextBox x:Name="ResultDisplay" IsReadOnly="True"
-                 Grid.Row="1" Grid.ColumnSpan="5" Margin="10,0,10,10" Height="50"
-                 FontSize="28" TextAlignment="Right" Text="0"/>
+        <TextBox x:Name="ResultDisplay" IsReadOnly="True" Grid.Row="1" Grid.ColumnSpan="5" Margin="10,0,10,10" Height="50" FontSize="28" TextAlignment="Right" Text="0"/>
 
         <Button Content="sin" Grid.Row="2" Grid.Column="0" Click="FunctionButton_Click"/>
         <Button Content="π" Grid.Row="2" Grid.Column="1" Click="ConstantButton_Click"/>
@@ -75,5 +71,5 @@
         <Button Content="0" Grid.Row="8" Grid.Column="2" Click="DigitButton_Click"/>
         <Button Content="," Grid.Row="8" Grid.Column="3" Click="DigitButton_Click"/>
         <Button Content="=" Grid.Row="8" Grid.Column="4" Click="CalculateResult" FontWeight="Bold"/>
-    </Grid>
+	</Grid>
 </Window>

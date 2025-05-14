@@ -86,6 +86,76 @@ namespace calculator
             UpdateExpressionDisplay();
         }
 
+        private void PlusMinusButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (error)
+            {
+                builder.Clear();
+                error = false;
+                ExpressionDisplay.Text = "0";
+                ResultDisplay.Text = "0";
+                return;
+            }
+
+            if (isEquationDisplayed || resultDisplayed)
+            {
+                string currentValue = ResultDisplay.Text;
+                if (currentValue == "0") return;
+
+                if (currentValue.StartsWith("-"))
+                {
+                    ResultDisplay.Text = currentValue.Substring(1);
+                }
+                else
+                {
+                    ResultDisplay.Text = "-" + currentValue;
+                }
+
+                builder.Clear();
+                builder.Append(ResultDisplay.Text);
+                resultDisplayed = true;
+                isEquationDisplayed = true;
+                return;
+            }
+
+            if (builder.Length == 0)
+            {
+                builder.Append("-");
+                UpdateExpressionDisplay();
+                return;
+            }
+
+            int i = builder.Length - 1;
+            while (i >= 0 && (char.IsDigit(builder[i]) || builder[i] == ','))
+            {
+                i--;
+            }
+
+            if (i >= 0 && (builder[i] == '+' || builder[i] == '-'))
+            {
+                bool isSignNotOperator = (i == 0) ||
+                                       (!char.IsDigit(builder[i - 1]) &&
+                                       (builder[i - 1] != ')'));
+
+                if (isSignNotOperator)
+                {
+                    builder[i] = builder[i] == '+' ? '-' : '+';
+                    UpdateExpressionDisplay();
+                    return;
+                }
+            }
+            if (i < builder.Length - 1)
+            {
+                builder.Insert(i + 1, "-");
+            }
+            else
+            {
+                builder.Append("-");
+            }
+
+            UpdateExpressionDisplay();
+        }
+
         private void FunctionButton_Click(object sender, RoutedEventArgs e)
         {
             var button = (Button)sender;
@@ -314,6 +384,17 @@ namespace calculator
 
                 expression = expression.Replace(',', '.');
 
+                var table = new DataTable();
+                var resultNull = table.Compute(expression, null);
+
+                if (resultNull is double d && (double.IsInfinity(d) || double.IsNaN(d)))
+                {
+                    ResultDisplay.Text = "Деление на ноль";
+                    ExpressionDisplay.Text = "Деление на ноль";
+                    error = true;
+                    return;
+                }
+
                 if (resultDisplayed && lastCalculationRepeated)
                 {
                     string currentResult = ResultDisplay.Text;
@@ -348,8 +429,19 @@ namespace calculator
                     builder.Clear();
                     builder.Append(result.ToString());
 
-                    ExpressionDisplay.Text = expression;
-                    isEquationDisplayed = true;
+                    if (num())
+                    {
+                        ResultDisplay.Text = "Ошибка";
+                        ExpressionDisplay.Text = "Деление на ноль";
+                        error = true;
+                        lastCalculationRepeated = false;
+                        isEquationDisplayed = false;
+                    }
+                    else
+                    {
+                        ExpressionDisplay.Text = expression;
+                        isEquationDisplayed = true;
+                    }
                 }
             }
             catch
@@ -360,6 +452,30 @@ namespace calculator
                 lastCalculationRepeated = false;
                 isEquationDisplayed = false;
             }
+        }
+
+        private bool num()
+        {
+            string expression = builder.ToString();
+
+            for (int i = 0; i < expression.Length - 1; i++)
+            {
+                if (expression[i] == '/')
+                {
+                    int j = i + 1;
+                    while (j < expression.Length && char.IsWhiteSpace(expression[j]))
+                        j++;
+
+                    if (j < expression.Length && expression[j] == '0')
+                    {
+                        if (j + 1 >= expression.Length || !(expression[j + 1] == '.' || char.IsDigit(expression[j + 1])))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         private void ParseLastOperation(string expression)
